@@ -28,8 +28,10 @@ def load_json_file(file_path) -> dict:
 
 def json_loader(file_path: str, is_enable=True) -> str:
     if is_enable == False:
-        return (None,)
+        return None
     output = load_json_file(file_path)
+    if output is None:
+        return None
     output = json.dumps(output, ensure_ascii=False)
     return output
 class AnyType(str):
@@ -67,19 +69,23 @@ class json_parser:
 
     def json_parser_tool(self, file_path: str, key=None, is_enable=True):
         if is_enable == False:
-            return (None,)
+            return ("", "None")  # 빈 문자열과 "None" 문자열 반환
         data_json = json_loader(file_path)
+        if data_json is None:
+            return ("", "None")
         if key == None:
             return (
                 data_json,
-                None,
+                "None",
             )
         data_dict = json.loads(data_json)
         try:
             value = data_dict[key]
+            if value is None:
+                value = "None"
         except KeyError:
             print(f"Key '{key}' not found in JSON data.")
-            value = None
+            value = "None"
         return (
             data_json,
             value,
@@ -105,7 +111,7 @@ class json_get_value:
 
     def get_value(self, text, key=None, is_enable=True):
         if is_enable == False:
-            return (None,)
+            return ("None",)  # 문자열 "None" 반환
         try:
             data = json.loads(text)
             try:
@@ -114,17 +120,20 @@ class json_get_value:
                 elif isinstance(data, list):
                     out = data[int(key)]
             except (KeyError, IndexError, ValueError):
-                return (None,)
-            # 判断是否为列表或者是字典
+                print(f"Key '{key}' not found in JSON data.")
+                return ("None",)  # 문자열 "None" 반환
+            # 판断是否为列表或者是字典
             if isinstance(out, list) or isinstance(out, dict):
                 out = json.dumps(out, ensure_ascii=False, indent=4)
                 return (out.strip(),)
+            elif out is None:
+                return ("None",)  # None 값인 경우 문자열 "None" 반환
             else:
                 return (out,)
             
         except json.JSONDecodeError:
             print("Invalid JSON format.")
-            return (None,)
+            return ("None",)  # 문자열 "None" 반환
 
 
 # _TOOL_HOOKS = ["json_parser"]

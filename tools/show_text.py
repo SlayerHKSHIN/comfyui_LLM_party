@@ -20,6 +20,12 @@ class show_text_party:
     CATEGORY = "大模型派对（llm_party）/文本（text）"
 
     def notify(self, text, unique_id=None, extra_pnginfo=None):
+        # text는 리스트로 전달됨 (INPUT_IS_LIST = True)
+        if isinstance(text, list) and len(text) > 0:
+            text_value = text[0]
+        else:
+            text_value = text if not isinstance(text, list) else ""
+            
         if unique_id is not None and extra_pnginfo is not None:
             if not isinstance(extra_pnginfo, list):
                 print("Error: extra_pnginfo is not a list")
@@ -32,9 +38,10 @@ class show_text_party:
                     None,
                 )
                 if node:
-                    node["widgets_values"] = [text]
+                    node["widgets_values"] = [text_value]
 
-        return {"ui": {"text": text}, "result": (text,)}
+        # OUTPUT_IS_LIST = (True,)이므로 리스트로 반환
+        return {"ui": {"text": [text_value]}, "result": ([text_value],)}
 
 
 class About_us:

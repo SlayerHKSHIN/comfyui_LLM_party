@@ -7,6 +7,7 @@ app.registerExtension({
 	async beforeRegisterNodeDef(nodeType, nodeData, app) {
 		if (nodeData.name === "show_text_party" || nodeData.name === "About_us") {
 			function populate(text) {
+				// Clear existing widgets except the first one
 				if (this.widgets) {
 					for (let i = 1; i < this.widgets.length; i++) {
 						this.widgets[i].onRemove?.();
@@ -14,15 +15,18 @@ app.registerExtension({
 					this.widgets.length = 1;
 				}
 
-				const v = [...text];
-				if (!v[0]) {
-					v.shift();
-				}
-				for (const list of v) {
+				// Handle both array and single value
+				let textArray = Array.isArray(text) ? text : [text];
+				
+				// Filter out empty values
+				textArray = textArray.filter(t => t !== null && t !== undefined && t !== "");
+				
+				// Create widgets for each text item
+				for (const textValue of textArray) {
 					const w = ComfyWidgets["STRING"](this, "text", ["STRING", { multiline: true }], app).widget;
 					w.inputEl.readOnly = true;
 					w.inputEl.style.opacity = 0.6;
-					w.value = list;
+					w.value = String(textValue);
 				}
 
 				requestAnimationFrame(() => {
